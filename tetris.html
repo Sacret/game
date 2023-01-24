@@ -26,44 +26,47 @@
     const rootElem = document.getElementById('root');
 
     const field = [...Array(ROW_LENGTH)].map(
-      row => [...Array(COLUMN_LENGTH)].map(column => EMPTY_CELL)
+      row => [...Array(COLUMN_LENGTH)].map(column => false)
     );
+
     const figures = {
       0: [
-        [EMPTY_CELL, EMPTY_CELL, EMPTY_CELL, EMPTY_CELL],
-        [FILLED_CELL, FILLED_CELL, FILLED_CELL, FILLED_CELL]
+        [false, false, false, false],
+        [true, true, true, true]
       ], // I
       1: [
-        [FILLED_CELL, EMPTY_CELL, EMPTY_CELL],
-        [FILLED_CELL, FILLED_CELL, FILLED_CELL]
+        [true, false, false],
+        [true, true, true]
       ], // J
       2: [
-        [EMPTY_CELL, EMPTY_CELL, FILLED_CELL],
-        [FILLED_CELL, FILLED_CELL, FILLED_CELL]
+        [false, false, true],
+        [true, true, true]
       ], // L
       3: [
-        [FILLED_CELL, FILLED_CELL],
-        [FILLED_CELL, FILLED_CELL]
+        [true, true],
+        [true, true]
       ], // O
       4: [
-        [EMPTY_CELL, FILLED_CELL, FILLED_CELL],
-        [FILLED_CELL, FILLED_CELL, EMPTY_CELL]
+        [false, true, true],
+        [true, true, false]
       ], // S
       5: [
-        [EMPTY_CELL, FILLED_CELL, EMPTY_CELL],
-        [FILLED_CELL, FILLED_CELL, FILLED_CELL]
+        [false, true, false],
+        [true, true, true]
       ], // T
       6: [
-        [FILLED_CELL, FILLED_CELL, EMPTY_CELL],
-        [EMPTY_CELL, FILLED_CELL, FILLED_CELL]
+        [true, true, false],
+        [false, true, true]
       ], // Z
     };
 
-    const printField = () => {
+    const printField = (figureField) => {
       let strField = '';
       for (let i = 0; i < ROW_LENGTH; i++) {
         for (let j = 0; j < COLUMN_LENGTH; j++) {
-          strField += field[i][j];
+          strField += (field[i][j] || figureField[i][j])
+            ? FILLED_CELL
+            : EMPTY_CELL;
         }
         strField += '\n';
       }
@@ -76,21 +79,31 @@
     }
 
     const startGame = () => {
-      const nextFigure = getRandomFigure();
+      const figure = getRandomFigure();
       let step = 0;
-      setInterval(() => {
-        const firstRow = nextFigure[0];
-        const secondRow = nextFigure[1];
 
-        for (let i = 0; i < firstRow.length; i++) {
-          field[step][START_POSITION + i] = firstRow[i];
-          field[step + 1][START_POSITION + i] = secondRow[i];
-        }
+      setInterval(() => {
+        const firstRow = figure[0];
+        const secondRow = figure[1];
+
+        const figureField = [...Array(ROW_LENGTH)].map(
+          (_, row) => [...Array(COLUMN_LENGTH)].map((_, column) => {
+            if (row === step - 1) {
+              return (column >= START_POSITION && column < COLUMN_LENGTH - START_POSITION)
+                ? firstRow[column - START_POSITION]
+                : false;
+            } else if (row === step) {
+              return (column >= START_POSITION && column < COLUMN_LENGTH - START_POSITION)
+                ? secondRow[column - START_POSITION]
+                : false;
+            }
+            return false;
+          })
+        );
 
         step++;
-        printField();
+        printField(figureField);
       }, INTERVAL);
-
     }
 
     startGame();
