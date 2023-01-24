@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Tetris</title>
+
+  <!-- <link rel="stylesheet" href="assets/styles/main.css"> -->
+
+</head>
+<body>
+  <div id="root" />
+
+  <script>
+    const ROW_LENGTH = 20;
+    const COLUMN_LENGTH = 10;
+
+    const INTERVAL = 1000;
+
+    const START_POSITION = 3;
+
+    const EMPTY_CELL = '□';
+    const FILLED_CELL = '■';
+
+    const rootElem = document.getElementById('root');
+
+    const field = [...Array(ROW_LENGTH)].map(
+      row => [...Array(COLUMN_LENGTH)].map(column => EMPTY_CELL)
+    );
+    const figures = {
+      0: [
+        [EMPTY_CELL, EMPTY_CELL, EMPTY_CELL, EMPTY_CELL],
+        [FILLED_CELL, FILLED_CELL, FILLED_CELL, FILLED_CELL]
+      ], // I
+      1: [
+        [FILLED_CELL, EMPTY_CELL, EMPTY_CELL],
+        [FILLED_CELL, FILLED_CELL, FILLED_CELL]
+      ], // J
+      2: [
+        [EMPTY_CELL, EMPTY_CELL, FILLED_CELL],
+        [FILLED_CELL, FILLED_CELL, FILLED_CELL]
+      ], // L
+      3: [
+        [FILLED_CELL, FILLED_CELL],
+        [FILLED_CELL, FILLED_CELL]
+      ], // O
+      4: [
+        [EMPTY_CELL, FILLED_CELL, FILLED_CELL],
+        [FILLED_CELL, FILLED_CELL, EMPTY_CELL]
+      ], // S
+      5: [
+        [EMPTY_CELL, FILLED_CELL, EMPTY_CELL],
+        [FILLED_CELL, FILLED_CELL, FILLED_CELL]
+      ], // T
+      6: [
+        [FILLED_CELL, FILLED_CELL, EMPTY_CELL],
+        [EMPTY_CELL, FILLED_CELL, FILLED_CELL]
+      ], // Z
+    };
+
+    const printField = () => {
+      let strField = '';
+      for (let i = 0; i < ROW_LENGTH; i++) {
+        for (let j = 0; j < COLUMN_LENGTH; j++) {
+          strField += field[i][j];
+        }
+        strField += '\n';
+      }
+      rootElem.innerText = strField;
+    }
+
+    const getRandomFigure = () => {
+      let rand = Math.random() * 7 - 0.5;
+      return figures[Math.round(rand)];
+    }
+
+    const startGame = () => {
+      const nextFigure = getRandomFigure();
+      let step = 0;
+      setInterval(() => {
+        const firstRow = nextFigure[0];
+        const secondRow = nextFigure[1];
+
+        for (let i = 0; i < firstRow.length; i++) {
+          field[step][START_POSITION + i] = firstRow[i];
+          field[step + 1][START_POSITION + i] = secondRow[i];
+        }
+
+        step++;
+        printField();
+      }, INTERVAL);
+
+    }
+
+    startGame();
+  </script>
+</body>
+</html>
