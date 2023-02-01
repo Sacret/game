@@ -97,6 +97,9 @@
         setFigureField(step - 1);
       } else if (code === DOWN_ARROW) {
         isDownPressed = true;
+      } else if (code === UP_ARROW) {
+        rotateFigure();
+        setFigureField(step - 1);
       }
     });
 
@@ -135,20 +138,41 @@
       return figures[Math.round(rand)];
     };
 
-    const setFigureField = (currentStep) => {
-      const [firstRow, secondRow] = figure;
+    const rotateFigure = () => {
+      const newFigure = [];
+      const figureRows = figure.length;
+      const figureColumns = figure[0].length;
 
+      for (let i = 0; i < figureRows; i++) {
+        for (let j = 0; j < figureColumns; j++) {
+          if (!newFigure[j]) {
+            newFigure[j] = [];
+          }
+
+          newFigure[j][figureRows - 1 - i] = figure[i][j];
+        }
+      }
+
+      step = step - (figureRows - newFigure.length);
+      figure = newFigure;
+    };
+
+    const setFigureField = (currentStep) => {
       figureField = [...Array(ROW_LENGTH)].map(
         (_, row) => [...Array(COLUMN_LENGTH)].map((_, column) => {
-          if (row === currentStep - 1) {
-            return (column >= currentPosition && column < currentPosition + firstRow.length)
-              ? firstRow[column - currentPosition]
-              : false;
-          } else if (row === currentStep) {
-            return (column >= currentPosition && column < currentPosition + secondRow.length)
-              ? secondRow[column - currentPosition]
+          const rowDiff = currentStep - row;
+          const figureRows = figure.length;
+          const figureColumns = figure[0].length;
+
+          if (rowDiff < figureRows) {
+            const columnDiff = column - currentPosition;
+            const figureRow = figure[figureRows - 1 - rowDiff];
+
+            return (columnDiff >= 0 && columnDiff < figureColumns && figureRow)
+              ? figureRow[columnDiff]
               : false;
           }
+
           return false;
         })
       );
@@ -165,7 +189,10 @@
 
           if (step === ROW_LENGTH) return true;
 
-          if (field[step - 1 + i] && field[step - 1 + i][currentPosition + j]) {
+          const fieldRow = field[step - 1 + i];
+
+          if (fieldRow && fieldRow[currentPosition + j]) {
+            debugger
             return true;
           }
         }
@@ -218,7 +245,6 @@
         }
 
         if (isFieldBottomTouch()) {
-          console.log(`step: ${step}; isFieldBottomTouch: true`);
           mergeFields();
           step = 0;
           currentPosition = START_POSITION;
