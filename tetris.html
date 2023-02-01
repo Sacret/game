@@ -15,6 +15,7 @@
   <script>
     const ROW_LENGTH = 20;
     const COLUMN_LENGTH = 10;
+    const FIGURES_COUNT = 7;
 
     const START_POSITION = 3;
 
@@ -80,21 +81,23 @@
 
       if (code === LEFT_ARROW) {
         const minPosition = 0;
-        currentPosition = currentPosition <= minPosition
+        if (!isFieldLeftTouch()) {
+          currentPosition = currentPosition <= minPosition
           ? minPosition
           : currentPosition - 1;
-        setFigureField();
+        }
+        setFigureField(step - 1);
       } else if (code == RIGHT_ARROW) {
         const maxPosition = COLUMN_LENGTH - figure[0].length;
-        currentPosition = currentPosition >= maxPosition
-          ? maxPosition
-          : currentPosition + 1;
-        setFigureField();
+        if (!isFieldRightTouch()) {
+          currentPosition = currentPosition >= maxPosition
+            ? maxPosition
+            : currentPosition + 1;
+        }
+        setFigureField(step - 1);
       } else if (code === DOWN_ARROW) {
         isDownPressed = true;
       }
-
-      printField();
     });
 
     document.addEventListener('keyup', (e) => {
@@ -128,20 +131,20 @@
     }
 
     const getRandomFigure = () => {
-      let rand = Math.random() * 7 - 0.5;
+      let rand = Math.random() * FIGURES_COUNT - 0.5;
       return figures[Math.round(rand)];
     };
 
-    const setFigureField = () => {
+    const setFigureField = (currentStep) => {
       const [firstRow, secondRow] = figure;
 
       figureField = [...Array(ROW_LENGTH)].map(
         (_, row) => [...Array(COLUMN_LENGTH)].map((_, column) => {
-          if (row === step - 1) {
+          if (row === currentStep - 1) {
             return (column >= currentPosition && column < currentPosition + firstRow.length)
               ? firstRow[column - currentPosition]
               : false;
-          } else if (row === step) {
+          } else if (row === currentStep) {
             return (column >= currentPosition && column < currentPosition + secondRow.length)
               ? secondRow[column - currentPosition]
               : false;
@@ -149,9 +152,11 @@
           return false;
         })
       );
+
+      printField();
     }
 
-    const isFieldTouch = () => {
+    const isFieldBottomTouch = () => {
       for (let i = 0; i < figure.length; i++) {
         for (let j = 0; j < figure[i].length; j++) {
           const currentCell = figure[i][j];
@@ -169,6 +174,42 @@
       return false;
     };
 
+    const isFieldLeftTouch = () => {
+      for (let i = 0; i < figure.length; i++) {
+        for (let j = 0; j < figure[i].length; j++) {
+          const currentCell = figure[i][j];
+
+          if (!currentCell) continue;
+
+          if (field[step - 2 + i] && field[step - 2 + i][currentPosition + j - 1]) {
+            return true;
+          }
+
+          break;
+        }
+      }
+
+      return false;
+    };
+
+    const isFieldRightTouch = () => {
+      for (let i = 0; i < figure.length; i++) {
+        for (let j = figure[i].length -1; j >= 0; j--) {
+          const currentCell = figure[i][j];
+
+          if (!currentCell) continue;
+
+          if (field[step - 2 + i] && field[step - 2 + i][currentPosition + j + 1]) {
+            return true;
+          }
+
+          break;
+        }
+      }
+
+      return false;
+    };
+
     const startGame = () => {
       const gameCallback = () => {
         if (step === 0) {
@@ -176,16 +217,15 @@
           figureField = EMPTY_FIELD;
         }
 
-        if (isFieldTouch()) {
+        if (isFieldBottomTouch()) {
+          console.log(`step: ${step}; isFieldBottomTouch: true`);
           mergeFields();
           step = 0;
           currentPosition = START_POSITION;
         } else {
-          setFigureField();
+          setFigureField(step);
           step++;
         }
-
-        printField();
 
         setTimeout(gameCallback, isDownPressed ? speedInterval : interval);
       };
