@@ -10,7 +10,8 @@
 
 </head>
 <body>
-  <div id="root" />
+  <div id="score">0</div>
+  <div id="root"></div>
 
   <script>
     const ROW_LENGTH = 20;
@@ -27,16 +28,26 @@
     const RIGHT_ARROW = 39;
     const DOWN_ARROW = 40;
 
+    const SCORES_LEVEL = {
+      0: 0,
+      1: 100,
+      2: 300,
+      3: 700,
+      4: 1500,
+    };
+
     const EMPTY_FIELD =  [...Array(ROW_LENGTH)].map(
       row => [...Array(COLUMN_LENGTH)].map(column => false)
     );
 
     const rootElem = document.getElementById('root');
+    const scoresElem = document.getElementById('score');
 
     let interval = 1000;
     let speedInterval = 100;
+    let scores = 0;
 
-    const field = EMPTY_FIELD;
+    let field = EMPTY_FIELD;
 
     const figures = {
       0: [
@@ -126,11 +137,31 @@
     };
 
     const mergeFields = () => {
+      let rowCount = 0;
+      const newField = [];
+
       for (let i = 0; i < ROW_LENGTH; i++) {
+        let row = [];
         for (let j = 0; j < COLUMN_LENGTH; j++) {
-          field[i][j] = field[i][j] || figureField[i][j];
+          row[j] = field[i][j] || figureField[i][j];
+        }
+        if (!row.every(elem => elem)) {
+          newField[rowCount] = row;
+          rowCount++;
         }
       }
+
+      const rowDiff = field.length - newField.length;
+      field = newField;
+
+      if (rowDiff) {
+        field.unshift([...Array(rowDiff)].map(
+          row => [...Array(COLUMN_LENGTH)].map(column => false)
+        ).flat());
+        scores += SCORES_LEVEL[rowDiff];
+      }
+
+      scoresElem.innerText = scores.toString();
     }
 
     const getRandomFigure = () => {
