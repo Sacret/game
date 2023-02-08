@@ -152,15 +152,16 @@
       }
 
       const rowDiff = field.length - newField.length;
-      field = newField;
+      let newItems = [];
 
       if (rowDiff) {
-        field.unshift([...Array(rowDiff)].map(
+        newItems = [...Array(rowDiff)].map(
           row => [...Array(COLUMN_LENGTH)].map(column => false)
-        ).flat());
+        );
         scores += SCORES_LEVEL[rowDiff];
       }
 
+      field = [...newItems, ...newField];
       scoresElem.innerText = scores.toString();
     }
 
