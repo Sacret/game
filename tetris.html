@@ -138,6 +138,7 @@
 
     const mergeFields = () => {
       let rowCount = 0;
+      let rowFilledCount = 0;
       const newField = [];
 
       for (let i = 0; i < ROW_LENGTH; i++) {
@@ -148,6 +149,9 @@
         if (!row.every(elem => elem)) {
           newField[rowCount] = row;
           rowCount++;
+        }
+        if (row.some(elem => elem)) {
+          rowFilledCount++;
         }
       }
 
@@ -161,8 +165,14 @@
         scores += SCORES_LEVEL[rowDiff];
       }
 
+      if (rowFilledCount === ROW_LENGTH) {
+        scoresElem.innerText = `You lost, ${scores.toString()}`;
+      } else if (rowFilledCount === 0) {
+        scoresElem.innerText = `You win, ${scores.toString()}`;
+      } else {
+        scoresElem.innerText = scores.toString();
+      }
       field = [...newItems, ...newField];
-      scoresElem.innerText = scores.toString();
     }
 
     const getRandomFigure = () => {
