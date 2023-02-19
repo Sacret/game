@@ -1,6 +1,88 @@
-#root {
-  width: 135px;
-  line-height: 1em;
+@import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+
+.brick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 270px;
+  height: 300px;
+  background-color: #b5b0ac;
+  border-radius: 20px 20px 0 0;
+  box-shadow:
+    inset 0px 0px 15px 15px #9b9590,
+    inset 0px 0px 65px 10px rgba(255, 255, 255, 0.5);
+}
+
+.center {
+  z-index: 10;
+  width: 273px;
+  height: 70px;
+  margin: -15px 0;
+  background-color: #b5b0ac;
+  border-radius: 20px;
+  box-shadow:
+    inset 0px 0px 15px 15px #9b9590,
+    inset 0px 0px 65px 10px rgba(255, 255, 255, 0.5),
+    0px -8px 15px -5px #9b9590,
+    0px 8px 15px -5px #9b9590;
+}
+
+.bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 270px;
+  height: 340px;
+  background-color: #b5b0ac;
+  border-radius: 0 0 20px 20px;
+  box-shadow:
+    inset 0px 0px 15px 15px #9b9590,
+    inset 0px 0px 65px 10px rgba(255, 255, 255, 0.5);
+}
+
+.screen {
+  display: flex;
+  width: 155px;
+  background-color: #989f7e;
+  border: 1px solid #000;
+  outline: 1px solid #000;
+  box-shadow:
+    inset 0px 0px 10px 3px #898f70,
+    0px 0px 5px 5px #9b9590;
+}
+
+#game {
+  width: 110px;
+  height: 220px;
+  font-size: 11px;
+  line-height: 11px;
+  outline: 2px solid #000;
+}
+
+.game-info {
+  width: 35px;
+  padding: 5px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 12px;
+  text-align: right;
+}
+
+.score-text {
+  font-size: 8px;
+  font-weight: 600;
+}
+
+.cell {
+  display: inline-flex;
+  height: 11px;
+  width: 11px;
 }
 
 .filled {
@@ -9,4 +91,69 @@
 
 .empty {
   opacity: 0.1;
+}
+
+.horizontal-buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 150px;
+  margin-top: 50px;
+}
+
+.control-buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 200px;
+  margin-top: 25px;
+}
+
+.arrow-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100px;
+}
+
+.line-buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 100px;
+}
+
+.button {
+  border-radius: 50%;
+  border: 1px solid rgba(232, 196, 62, 0.9);
+  background-color: #d7a216;
+  box-shadow:
+    0px 6px 5px 0px #9b9590,
+    0px 1px 3px 0px #262422,
+    inset 5px 5px 10px 0px rgba(232, 196, 62, 0.9);
+  cursor: pointer;
+}
+
+
+.button:hover {
+  box-shadow:
+    0px 6px 5px 0px #9b9590,
+    0px 1px 3px 0px #262422,
+    inset 5px 5px 10px 1px rgba(232, 196, 62, 1);
+}
+
+.button.small {
+  width: 20px;
+  height: 20px;
+}
+
+.button.medium {
+  width: 30px;
+  height: 30px;
+}
+
+.button.big {
+  width: 50px;
+  height: 50px;
+}
+
+.button.rotate {
+  margin-top: 20px;
 }
