@@ -6,7 +6,7 @@
 
   <title>Tetris</title>
 
-  <!-- <link rel="stylesheet" href="assets/styles/main.css"> -->
+  <link rel="stylesheet" href="styles.css">
 
 </head>
 <body>
@@ -19,14 +19,17 @@
     const FIGURES_COUNT = 7;
 
     const START_POSITION = 3;
+    const START_INTERVAL = 1000;
+    const DIFF_INTERVAL = 50;
+    const MIN_INTERVAl = 0;
 
-    const EMPTY_CELL = '□';
-    const FILLED_CELL = '■';
+    const CELL = '▣';
 
     const LEFT_ARROW = 37;
     const UP_ARROW = 38;
     const RIGHT_ARROW = 39;
     const DOWN_ARROW = 40;
+    const SPACE = 32;
 
     const SCORES_LEVEL = {
       0: 0,
@@ -43,9 +46,12 @@
     const rootElem = document.getElementById('root');
     const scoresElem = document.getElementById('score');
 
-    let interval = 1000;
+    let figuresCount = 0;
+    let interval = START_INTERVAL;
     let speedInterval = 100;
+    let currentInterval = interval;
     let scores = 0;
+    let currentTimeout = null;
 
     let field = EMPTY_FIELD;
 
@@ -107,10 +113,16 @@
         }
         setFigureField(step - 1);
       } else if (code === DOWN_ARROW) {
-        isDownPressed = true;
+        currentInterval = speedInterval;
+        clearTimeout(currentTimeout);
+        gameCallback();
       } else if (code === UP_ARROW) {
         rotateFigure();
         setFigureField(step - 1);
+      } else if (code === SPACE) {
+        currentInterval = MIN_INTERVAl;
+        clearTimeout(currentTimeout);
+        gameCallback();
       }
     });
 
@@ -119,7 +131,7 @@
       const code = event.keyCode;
 
       if (code === DOWN_ARROW) {
-        isDownPressed = false;
+        currentInterval = interval;
       }
     });
 
@@ -128,12 +140,12 @@
       for (let i = 0; i < ROW_LENGTH; i++) {
         for (let j = 0; j < COLUMN_LENGTH; j++) {
           strField += (field[i][j] || figureField[i][j])
-            ? FILLED_CELL
-            : EMPTY_CELL;
+            ? `<span class="filled">${CELL}</span>`
+            : `<span class="empty">${CELL}</span>`;
         }
         strField += '\n';
       }
-      rootElem.innerText = strField;
+      rootElem.innerHTML = strField;
     };
 
     const mergeFields = () => {
@@ -172,10 +184,20 @@
       } else {
         scoresElem.innerText = scores.toString();
       }
+
+      if (currentInterval === MIN_INTERVAl) {
+        currentInterval = interval;
+      }
+
       field = [...newItems, ...newField];
     }
 
     const getRandomFigure = () => {
+      if (figuresCount % 10 === 0) {
+        interval = interval - DIFF_INTERVAL > speedInterval ? interval - DIFF_INTERVAL : speedInterval;
+      }
+      figuresCount++;
+
       let rand = Math.random() * FIGURES_COUNT - 0.5;
       return figures[Math.round(rand)];
     };
@@ -312,29 +334,25 @@
       return false;
     };
 
-    const startGame = () => {
-      const gameCallback = () => {
-        if (step === 0) {
-          figure = getRandomFigure();
-          figureField = EMPTY_FIELD;
-        }
+    const gameCallback = () => {
+      if (step === 0) {
+        figure = getRandomFigure();
+        figureField = EMPTY_FIELD;
+      }
 
-        if (isFieldBottomTouch()) {
-          mergeFields();
-          step = 0;
-          currentPosition = START_POSITION;
-        } else {
-          setFigureField(step);
-          step++;
-        }
+      if (isFieldBottomTouch()) {
+        mergeFields();
+        step = 0;
+        currentPosition = START_POSITION;
+      } else {
+        setFigureField(step);
+        step++;
+      }
 
-        setTimeout(gameCallback, isDownPressed ? speedInterval : interval);
-      };
-
-      setTimeout(gameCallback, interval);
+      currentTimeout = setTimeout(gameCallback, currentInterval);
     };
 
-    startGame();
+    gameCallback();
   </script>
 </body>
 </html>

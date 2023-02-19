@@ -1,0 +1,12 @@
+#root {
+  width: 135px;
+  line-height: 1em;
+}
+
+.filled {
+  opacity: 1;
+}
+
+.empty {
+  opacity: 0.1;
+}
