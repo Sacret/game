@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;700&family=Orbitron&display=swap');
 
 .brick {
   display: flex;
@@ -15,18 +15,22 @@
   height: 300px;
   padding-bottom: 15px;
   background-color: #b5b0ac;
+  border: 1px solid #76716d;
   border-radius: 20px 20px 0 0;
   box-shadow:
     inset 0px 0px 15px 15px #9b9590,
-    inset 0px 0px 65px 10px rgba(255, 255, 255, 0.5);
+    inset 0px 0px 65px 10px rgba(255, 255, 255, 0.5),
+    0px 0px 15px -5px #9b9590;
 }
 
 .center {
   z-index: 10;
-  width: 270px;
+  width: 272px;
   height: 70px;
   margin: -15px 0;
   background-color: #b5b0ac;
+  border-right: 1px solid #76716d;
+  border-left: 1px solid #76716d;
   border-radius: 20px;
   box-shadow:
     inset 0px 0px 15px 15px #9b9590,
@@ -42,10 +46,12 @@
   width: 270px;
   height: 340px;
   background-color: #b5b0ac;
+  border: 1px solid #76716d;
   border-radius: 0 0 20px 20px;
   box-shadow:
     inset 0px 0px 15px 15px #9b9590,
-    inset 0px 0px 65px 10px rgba(255, 255, 255, 0.5);
+    inset 0px 0px 65px 10px rgba(255, 255, 255, 0.5),
+    0px 0px 15px -5px #9b9590;
 }
 
 .top-left,
@@ -53,7 +59,7 @@
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  width: 32px;
+  width: 34px;
 }
 
 .bg-cell {
@@ -96,7 +102,7 @@
 }
 
 .score-text {
-  font-size: 7px;
+  font-size: 6px;
   font-weight: 900;
 }
 
@@ -120,29 +126,136 @@
 
 .horizontal-buttons {
   display: flex;
+  justify-content: space-around;
+  width: 180px;
+  margin-top: 40px;
+}
+
+.horizontal-texts {
+  display: flex;
   justify-content: space-between;
-  width: 150px;
-  margin-top: 50px;
+  width: 180px;
+  margin-top: 5px;
 }
 
 .control-buttons {
   display: flex;
   justify-content: space-between;
-  width: 200px;
-  margin-top: 25px;
+  width: 220px;
+  margin-top: 15px;
 }
 
 .arrow-buttons {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100px;
+  width: 110px;
+}
+
+.arrow-symbols {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 28px;
+  font-size: 12px;
+  line-height: 10px;
 }
 
 .line-buttons {
   display: flex;
   justify-content: space-between;
-  width: 100px;
+  align-items: center;
+  width: 110px;
+  margin: 5px 0;
+}
+
+.rotate-button-container {
+  display: flex;
+  align-items: center;
+}
+
+.rotate-symbol {
+  font-size: 40px;
+  transform: scale(-1);
+  padding: 5px;
+}
+
+.rotate-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 60px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.rotate-text {
+  position: relative;
+  width: 60px;
+  height: 20px;
+}
+
+.rotate-text-letter {
+  position: absolute;
+}
+
+.rotate-text-letter:nth-child(1) {
+  left: 0;
+  bottom: 0;
+  transform: rotate(320deg);
+}
+
+.rotate-text-letter:nth-child(2) {
+  left: 10px;
+  bottom: 7px;
+  transform: rotate(335deg);
+}
+
+.rotate-text-letter:nth-child(3) {
+  left: 20px;
+  bottom: 10px;
+  transform: rotate(350deg);
+}
+
+.rotate-text-letter:nth-child(4) {
+  left: 30px;
+  bottom: 10px;
+  transform: rotate(365deg);
+}
+
+.rotate-text-letter:nth-child(5) {
+  left: 41px;
+  bottom: 7px;
+  transform: rotate(390deg);
+}
+
+.rotate-text-letter:nth-child(6) {
+  left: 50px;
+  bottom: 0;
+  transform: rotate(405deg);
+}
+
+.info {
+  display: flex;
+  justify-content: space-between;
+  width: 220px;
+  margin-top: 20px;
+  padding: 0 0 10px;
+  border-bottom: 4px solid #dea901;
+}
+
+.title {
+  font-family: 'Montserrat Alternates', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  transform: rotate(330deg);
+  text-align: end;
+}
+
+.logo {
+  color: #e11511;
+  font-size: 60px;
 }
 
 .button {
@@ -156,12 +269,21 @@
   cursor: pointer;
 }
 
-
-.button:hover {
+.button:hover,
+.button:focus {
   box-shadow:
     0px 6px 5px 0px #9b9590,
     0px 1px 3px 0px #262422,
-    inset 5px 5px 10px 1px rgba(232, 196, 62, 1);
+    inset 5px 5px 10px 1px rgb(232, 196, 62);
+}
+
+.button:active {
+  box-shadow:
+    0px 3px 5px 0px #9b9590,
+    0px 1px 3px 0px #262422,
+    0px 0px 5px 0px #7f7a75,
+    0px 0px 3px 0px #161514,
+    inset 5px 5px 10px 1px rgb(248, 210, 70);
 }
 
 .button.small {
@@ -180,5 +302,15 @@
 }
 
 .button.rotate {
-  margin-top: 20px;
+}
+
+.text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 9px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.text.small {
+  width: 40px;
 }
