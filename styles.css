@@ -10,9 +10,10 @@
 .top {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
   width: 270px;
   height: 300px;
+  padding-bottom: 15px;
   background-color: #b5b0ac;
   border-radius: 20px 20px 0 0;
   box-shadow:
@@ -22,7 +23,7 @@
 
 .center {
   z-index: 10;
-  width: 273px;
+  width: 270px;
   height: 70px;
   margin: -15px 0;
   background-color: #b5b0ac;
@@ -45,6 +46,25 @@
   box-shadow:
     inset 0px 0px 15px 15px #9b9590,
     inset 0px 0px 65px 10px rgba(255, 255, 255, 0.5);
+}
+
+.top-left,
+.top-right {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 32px;
+}
+
+.bg-cell {
+  width: 12px;
+  height: 12px;
+  margin-top: 3px;
+}
+
+.frame {
+  border: 5px solid transparent;
+  outline: 4px solid #dea901;
 }
 
 .screen {
@@ -70,13 +90,18 @@
   width: 35px;
   padding: 5px;
   font-family: 'Orbitron', sans-serif;
-  font-size: 12px;
+  font-size: 10px;
   text-align: right;
+  word-break: break-all;
 }
 
 .score-text {
-  font-size: 8px;
-  font-weight: 600;
+  font-size: 7px;
+  font-weight: 900;
+}
+
+.score-text:not(:first-child) {
+  margin-top: 5px;
 }
 
 .cell {
@@ -123,7 +148,7 @@
 .button {
   border-radius: 50%;
   border: 1px solid rgba(232, 196, 62, 0.9);
-  background-color: #d7a216;
+  background-color: #dea901;
   box-shadow:
     0px 6px 5px 0px #9b9590,
     0px 1px 3px 0px #262422,

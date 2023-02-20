@@ -12,12 +12,68 @@
 <body>
   <div class="brick">
     <div class="top">
-      <div class="screen">
-        <div id="game"></div>
-        <div class="game-info">
-          <div class="score-text">Score</div>
-          <div id="score">0</div>
+      <div class="top-left">
+        <div class="bg-cell"></div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell"></div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell"></div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell"></div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell"></div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell"></div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+      </div>
+      <div class="frame">
+        <div class="screen">
+          <div id="game"></div>
+          <div class="game-info">
+            <div class="score-text">Hi-Score</div>
+            <div id="hi-score">0</div>
+            <div class="score-text">Score</div>
+            <div id="score">0</div>
+          </div>
         </div>
+      </div>
+      <div class="top-right">
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell"></div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell"></div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell"></div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell"></div>
+        <div class="bg-cell"></div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell">▣</div>
+        <div class="bg-cell"></div>
       </div>
     </div>
     <div class="center"></div>
@@ -30,12 +86,12 @@
       </div>
       <div class="control-buttons">
         <div class="arrow-buttons">
-          <div class="button top medium"></div>
+          <div class="button up medium"></div>
           <div class="line-buttons">
             <div class="button left medium"></div>
             <div class="button right medium"></div>
           </div>
-          <div class="button bottom medium"></div>
+          <div class="button down medium"></div>
         </div>
         <div class="button rotate big"></div>
       </div>
@@ -74,6 +130,9 @@
 
     const gameElem = document.getElementById('game');
     const scoresElem = document.getElementById('score');
+    const hiScoresElem = document.getElementById('hi-score');
+
+    hiScoresElem.innerText = localStorage.getItem('hi-score') || 0;
 
     let figuresCount = 0;
     let interval = START_INTERVAL;
@@ -207,11 +266,15 @@
       }
 
       if (rowFilledCount === ROW_LENGTH) {
-        scoresElem.innerText = `You lost, ${scores.toString()}`;
+        scoresElem.innerText = `You lost, ${scores}`;
+        localStorage.setItem('hi-score', scores);
+        clearTimeout(currentTimeout);
       } else if (rowFilledCount === 0) {
-        scoresElem.innerText = `You win, ${scores.toString()}`;
+        scoresElem.innerText = `You win, ${scores}`;
+        localStorage.setItem('hi-score', scores);
+        clearTimeout(currentTimeout);
       } else {
-        scoresElem.innerText = scores.toString();
+        scoresElem.innerText = scores;
       }
 
       if (currentInterval === MIN_INTERVAl) {
