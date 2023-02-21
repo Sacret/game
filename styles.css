@@ -10,7 +10,7 @@
 .top {
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: center;
   width: 270px;
   height: 300px;
   padding-bottom: 15px;
@@ -59,7 +59,8 @@
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  width: 34px;
+  width: 32px;
+  margin: 0 5px;
 }
 
 .bg-cell {
@@ -185,9 +186,6 @@
   flex-direction: column;
   align-items: center;
   width: 60px;
-  font-family: 'Orbitron', sans-serif;
-  font-size: 12px;
-  font-weight: 900;
 }
 
 .rotate-text {
@@ -301,9 +299,6 @@
   height: 50px;
 }
 
-.button.rotate {
-}
-
 .text {
   font-family: 'Orbitron', sans-serif;
   font-size: 9px;
@@ -313,4 +308,9 @@
 
 .text.small {
   width: 40px;
+}
+
+.text.big {
+  font-size: 12px;
+  font-weight: 900;
 }
