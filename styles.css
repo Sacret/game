@@ -93,13 +93,17 @@
   outline: 2px solid #000;
 }
 
-.game-info {
+#game-info {
   width: 35px;
   padding: 5px;
   font-family: 'Orbitron', sans-serif;
   font-size: 10px;
   text-align: right;
   word-break: break-all;
+}
+
+.invisible {
+  visibility: hidden;
 }
 
 .score-text {
