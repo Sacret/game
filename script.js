@@ -135,25 +135,102 @@ class Game {
 
   #getCell = (val) => `<span class="cell ${val ? 'filled' : 'empty'}">${Game.#CELL}</span>`;
 
+  #getAnimation = (splashStep, defaultSplashCell) => {
+    const ranges = [19, 28, 47, 55, 73, 80, 97, 103, 119, 124, 139, 143, 157, 160, 173, 175, 187, 188, 199];
+    const currentRange = ranges.find(range => splashStep <= range);
+    const currentRangeIndex = ranges.findIndex(range => range === currentRange);
+
+    const setStaticCell = (right, up, left, down, i, j) =>
+      (i < up || i > Game.#ROW_LENGTH - 1 - down || j < left || j > Game.#COLUMN_LENGTH - 1 - right)
+        ? !defaultSplashCell
+        : defaultSplashCell;
+
+    return [...Array(Game.#ROW_LENGTH)].map(
+      (row, i) => [...Array(Game.#COLUMN_LENGTH)].map((column, j) => {
+        let splashCell = defaultSplashCell;
+
+        switch (currentRangeIndex) {
+          case 0: case 4: case 8: case 12: case 16: { // up
+            const rightLinesCount = (currentRangeIndex + 0) / 4;
+            const leftLinesCount = rightLinesCount;
+            const upLinesCount = leftLinesCount;
+            const downLinesCount = upLinesCount;
+
+            splashCell = setStaticCell(rightLinesCount, upLinesCount, leftLinesCount, downLinesCount, i, j);
+
+            if (currentRange - splashStep + downLinesCount <= i && j === Game.#COLUMN_LENGTH - 1 - rightLinesCount) {
+              splashCell = !defaultSplashCell;
+            }
+
+            break;
+          }
+          case 1: case 5: case 9: case 13: case 17: { // left
+            const rightLinesCount = (currentRangeIndex + 3) / 4;
+            const leftLinesCount = rightLinesCount - 1;
+            const upLinesCount = leftLinesCount;
+            const downLinesCount = upLinesCount;
+
+            splashCell = setStaticCell(rightLinesCount, upLinesCount, leftLinesCount, downLinesCount, i, j);
+
+            if (currentRange - splashStep + leftLinesCount <= j && i === upLinesCount) {
+              splashCell = !defaultSplashCell;
+            }
+
+            break;
+          }
+          case 2: case 6: case 10: case 14: case 18: { // down
+            const rightLinesCount = (currentRangeIndex + 2) / 4;
+            const leftLinesCount = rightLinesCount - 1;
+            const upLinesCount = rightLinesCount;
+            const downLinesCount = upLinesCount - 1;
+
+            splashCell = setStaticCell(rightLinesCount, upLinesCount, leftLinesCount, downLinesCount, i, j);
+
+            if (splashStep - ranges[currentRangeIndex - 1] + downLinesCount >= i && j === leftLinesCount) {
+              splashCell = !defaultSplashCell;
+            }
+
+            break;
+          }
+          case 3: case 7: case 11: case 15: { // right
+            const rightLinesCount = (currentRangeIndex + 1) / 4;
+            const leftLinesCount = rightLinesCount;
+            const upLinesCount = rightLinesCount;
+            const downLinesCount = upLinesCount - 1;
+
+            splashCell = setStaticCell(rightLinesCount, upLinesCount, leftLinesCount, downLinesCount, i, j);
+
+            if (splashStep - ranges[currentRangeIndex - 1] + downLinesCount >= j && i === Game.#ROW_LENGTH - 1 - downLinesCount) {
+              splashCell = !defaultSplashCell;
+            }
+
+            break;
+          }
+
+          default: {
+            break;
+          }
+        }
+
+        return splashCell;
+      }),
+    );
+  };
+
   #printSplash = (callback) => {
+    const allSplashSteps = Game.#ROW_LENGTH * Game.#COLUMN_LENGTH;
     let splashStep = 0;
 
-    const printCallback = () => {
+    const printCallback = (defaultSplashCell) => {
       let strField = '';
+      const currentSplashStep = splashStep > allSplashSteps
+        ? splashStep - allSplashSteps
+        : splashStep;
+      const splashAnimation = this.#getAnimation(currentSplashStep, defaultSplashCell);
 
       for (let i = 0; i < Game.#ROW_LENGTH; i++) {
         for (let j = 0; j < Game.#COLUMN_LENGTH; j++) {
-          let splashCell = false;
-          // if (splashStep < 19) {
-          //   if (19 - splashStep >= i && j === 9) {
-          //     splashCell = true;
-          //   }
-          // } else if (splashStep < 29) {
-          //   if (9 - splashStep - 20 <= j && i === 0) {
-          //     splashCell = true;
-          //   }
-          // }
-          strField += this.#getCell(Game.#SPLASH_SCREEN[i][j] || splashCell);
+          strField += this.#getCell(Game.#SPLASH_SCREEN[i][j] || splashAnimation[i][j]);
         }
         strField += '\n';
       }
@@ -162,14 +239,14 @@ class Game {
     }
 
     const intervalId = setInterval(() => {
-      printCallback();
+      printCallback(splashStep > allSplashSteps);
       splashStep++;
 
       if (!this.#isGameOn) {
         clearInterval(intervalId);
       }
 
-      if (splashStep === Game.#ROW_LENGTH * Game.#COLUMN_LENGTH * 2) {
+      if (splashStep === allSplashSteps * 2) {
         clearInterval(intervalId);
         callback();
       }
