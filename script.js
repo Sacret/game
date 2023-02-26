@@ -2,7 +2,6 @@ class Game {
   static #ROW_LENGTH = 20;
   static #COLUMN_LENGTH = 10;
   static #START_POSITION_X = 3;
-  static #CHANGE_DELAY_INTERVAl = 10;
 
   static #FIGURES = {
     // I
@@ -42,6 +41,8 @@ class Game {
     ],
   };
   static #FIGURES_COUNT = 7;
+  static #FIGURE_MAX_HEIGHT = 4;
+  static #CHANGE_DELAY_INTERVAl = 10;
 
   static #START_DELAY = 1000;
   static #DIFF_DELAY = 50;
@@ -51,6 +52,9 @@ class Game {
 
   static #CELL = '▣';
   static #HI_SCORE_LABEL = 'hi-score';
+  static #HI_SCORE = localStorage.getItem(Game.#HI_SCORE_LABEL);
+
+  static #AUDIO = new Audio('./sound/korobeyniki.mp3');
 
   static #SCORES_LEVEL = {
     0: 0,
@@ -98,22 +102,39 @@ class Game {
 
   #field = Game.#EMPTY_FIELD;
   #figure = null;
+  #nextFigure = null;
   #figureField = Game.#EMPTY_FIELD;
 
   #isGameInProgress = false;
   #isGameOn = false;
+  #isSoundOn = false;
 
-  constructor(gameElem, gameInfoElem, scoresElem, hiScoresElem) {
+  constructor(gameElem, gameInfoElem) {
     this.gameElem = gameElem;
     this.gameInfoElem = gameInfoElem;
-    this.scoresElem = scoresElem;
-    this.hiScoresElem = hiScoresElem;
+
+    this.gameInfoElem.innerHTML = `
+      <div class="score-text">Hi-Score</div>
+      <div id="hi-score">0</div>
+      <div class="score-text">Score</div>
+      <div id="score">0</div>
+      <div id="next-figure"></div>
+    `;
+
+    this.scoresElem = document.getElementById('score');
+    this.hiScoresElem = document.getElementById('hi-score');
+    this.nextFigureElem = document.getElementById('next-figure');
 
     this.#setHiScore();
+
+    Game.#AUDIO.loop = true;
+    Game.#AUDIO.volume = 0.5;
+
+    this.#nextFigure = this.#getRandomFigure();
   }
 
   #setHiScore = () => {
-    hiScoresElem.innerText = localStorage.getItem(Game.#HI_SCORE_LABEL) || 0;
+    this.hiScoresElem.innerText = Game.#HI_SCORE || 0;
   }
 
   #clearCurrentTimeout = () => {
@@ -269,9 +290,24 @@ class Game {
     this.gameElem.innerHTML = strField;
   };
 
+  #printNextFigure = () => {
+    const nextFigure = this.#nextFigure;
+
+    let strField = '';
+
+    for (let i = 0; i < Game.#FIGURE_MAX_HEIGHT; i++) {
+      for (let j = 0; j < Game.#FIGURE_MAX_HEIGHT; j++) {
+        strField += this.#getCell(nextFigure[i] && nextFigure[i][j]);
+      }
+      strField += '\n';
+    }
+
+    this.nextFigureElem.innerHTML = strField;
+  };
+
   #checkEndGame = () => {
-    let rowFilledCount = 0;
     const field = this.#field;
+    let rowFilledCount = 0;
 
     for (let i = 0; i < Game.#ROW_LENGTH; i++) {
       if (field[i].some(elem => elem)) {
@@ -279,15 +315,15 @@ class Game {
       }
     }
 
-    return rowFilledCount === Game.#ROW_LENGTH || rowFilledCount === 0;
+    return rowFilledCount === Game.#ROW_LENGTH;
   };
 
   #mergeFields = () => {
-    let rowCount = 0;
-
     const newField = [];
     const field = this.#field;
     const figureField = this.#figureField;
+
+    let rowCount = 0;
 
     for (let i = 0; i < Game.#ROW_LENGTH; i++) {
       let row = [];
@@ -301,16 +337,16 @@ class Game {
     }
 
     const rowDiff = field.length - newField.length;
-    let newItems = [];
+    let emptyItems = [];
 
     if (rowDiff) {
-      newItems = [...Array(rowDiff)].map(
+      emptyItems = [...Array(rowDiff)].map(
         row => [...Array(Game.#COLUMN_LENGTH)].map(column => false)
       );
       this.#scores += Game.#SCORES_LEVEL[rowDiff];
     }
 
-    this.#field = [...newItems, ...newField];
+    this.#field = [...emptyItems, ...newField];
   }
 
   #getMaxPosition = (currentFigure) => {
@@ -500,10 +536,12 @@ class Game {
     let isGameEnd = false;
 
     if (this.#step === 0) {
-      this.#figure = this.#getRandomFigure();
+      this.#figure = this.#nextFigure;
+      this.#nextFigure = this.#getRandomFigure();
       this.#figuresCount++;
       this.#figureField = Game.#EMPTY_FIELD;
       this.#changeDelay();
+      this.#printNextFigure();
     }
 
     if (this.#isFieldBottomTouch()) {
@@ -511,10 +549,11 @@ class Game {
       isGameEnd = this.#checkEndGame();
 
       if (isGameEnd) {
-        if (this.#scores > localStorage.getItem(Game.#HI_SCORE_LABEL)) {
+        if (this.#scores > Game.#HI_SCORE) {
           localStorage.setItem(Game.#HI_SCORE_LABEL, this.#scores);
         }
         this.#clearCurrentTimeout();
+        alert(`Game over, your scores: ${this.#scores}`)
       } else {
         this.scoresElem.innerText = this.#scores;
 
@@ -537,7 +576,7 @@ class Game {
 
   start = () => {
     this.continue();
-  }
+  };
 
   reset = () => {
     this.#clearCurrentTimeout();
@@ -560,7 +599,7 @@ class Game {
     this.#isGameInProgress = true;
 
     this.start();
-  }
+  };
 
   togglePause = () => {
     this.#isGameInProgress = !this.#isGameInProgress;
@@ -568,7 +607,7 @@ class Game {
     if (this.#isGameInProgress) {
       this.continue();
     }
-  }
+  };
 
   toggleOn = () => {
     this.gameElem.classList.toggle('invisible');
@@ -584,15 +623,25 @@ class Game {
     } else {
       this.#isGameInProgress = false;
     }
+  };
+
+  toggleSound = () => {
+    if (!this.#isGameOn) return;
+
+    if (!this.#isSoundOn) {
+      Game.#AUDIO.play();
+    } else {
+      Game.#AUDIO.pause();
+    }
+
+    this.#isSoundOn = !this.#isSoundOn;
   }
 };
 
 const gameElem = document.getElementById('game');
 const gameInfoElem = document.getElementById('game-info');
-const scoresElem = document.getElementById('score');
-const hiScoresElem = document.getElementById('hi-score');
 
-const game = new Game(gameElem, gameInfoElem, scoresElem, hiScoresElem);
+const game = new Game(gameElem, gameInfoElem);
 
 const KEY_LEFT_ARROW = 'ArrowLeft';
 const KEY_UP_ARROW = 'ArrowUp';
@@ -629,6 +678,7 @@ document.addEventListener('keyup', (e) => {
 document.getElementById('button-game-on').addEventListener('click', game.toggleOn);
 document.getElementById('button-game-pause').addEventListener('click', game.togglePause);
 document.getElementById('button-game-reset').addEventListener('click', game.reset);
+document.getElementById('button-game-sound').addEventListener('click', game.toggleSound);
 
 document.getElementById('button-left').addEventListener('click', game.moveFigureLeft);
 document.getElementById('button-right').addEventListener('click', game.moveFigureRight);

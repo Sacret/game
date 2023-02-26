@@ -94,8 +94,7 @@
 }
 
 #game-info {
-  width: 35px;
-  padding: 5px;
+  width: 45px;
   font-family: 'Orbitron', sans-serif;
   font-size: 10px;
   text-align: right;
@@ -107,12 +106,19 @@
 }
 
 .score-text {
+  padding: 5px 3px 0 5px;
   font-size: 5px;
   font-weight: 900;
 }
 
-.score-text:not(:first-child) {
-  margin-top: 5px;
+#score,
+#hi-score {
+  padding: 0 3px;
+  font-size: 10px;
+}
+
+#next-figure {
+  padding: 5px 0;
 }
 
 .cell {
@@ -311,7 +317,7 @@
 }
 
 .text.small {
-  width: 40px;
+  width: 45px;
 }
 
 .text.big {
