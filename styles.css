@@ -112,13 +112,14 @@
 }
 
 #score,
-#hi-score {
+#hi-score,
+#speed {
   padding: 0 3px;
   font-size: 10px;
 }
 
 #next-figure {
-  padding: 5px 0;
+  padding: 5px 0 0;
 }
 
 .cell {

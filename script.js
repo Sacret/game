@@ -100,9 +100,9 @@ class Game {
   #delay = Game.#START_DELAY;
   #currentDelay = this.#delay;
 
-  #field = Game.#EMPTY_FIELD;
   #figure = null;
   #nextFigure = null;
+  #field = Game.#EMPTY_FIELD;
   #figureField = Game.#EMPTY_FIELD;
 
   #isGameInProgress = false;
@@ -119,11 +119,14 @@ class Game {
       <div class="score-text">Score</div>
       <div id="score">0</div>
       <div id="next-figure"></div>
+      <div class="score-text">Speed</div>
+      <div id="speed">1</div>
     `;
 
     this.scoresElem = document.getElementById('score');
     this.hiScoresElem = document.getElementById('hi-score');
     this.nextFigureElem = document.getElementById('next-figure');
+    this.speedElem = document.getElementById('speed');
 
     this.#setHiScore();
 
@@ -131,6 +134,7 @@ class Game {
     Game.#AUDIO.volume = 0.5;
 
     this.#nextFigure = this.#getRandomFigure();
+    this.#printNextFigure(true);
   }
 
   #setHiScore = () => {
@@ -146,6 +150,7 @@ class Game {
       this.#delay = this.#delay - Game.#DIFF_DELAY > Game.#SPEED_DELAY
         ? this.#delay - Game.#DIFF_DELAY
         : Game.#SPEED_DELAY;
+      this.speedElem.innerText = Math.round(this.#figuresCount / Game.#CHANGE_DELAY_INTERVAl);
     }
   };
 
@@ -155,6 +160,19 @@ class Game {
   };
 
   #getCell = (val) => `<span class="cell ${val ? 'filled' : 'empty'}">${Game.#CELL}</span>`;
+
+  #getStrField = (field1, field2) => {
+    let strField = '';
+
+    for (let i = 0; i < Game.#ROW_LENGTH; i++) {
+      for (let j = 0; j < Game.#COLUMN_LENGTH; j++) {
+        strField += this.#getCell(field1[i][j] || field2[i][j]);
+      }
+      strField += '\n';
+    }
+
+    return strField;
+  }
 
   #getAnimation = (splashStep, defaultSplashCell) => {
     const ranges = [19, 28, 47, 55, 73, 80, 97, 103, 119, 124, 139, 143, 157, 160, 173, 175, 187, 188, 199];
@@ -243,20 +261,12 @@ class Game {
     let splashStep = 0;
 
     const printCallback = (defaultSplashCell) => {
-      let strField = '';
-      const currentSplashStep = splashStep > allSplashSteps
+      const currentSplashStep = splashStep > allSplashSteps - 1
         ? splashStep - allSplashSteps
         : splashStep;
       const splashAnimation = this.#getAnimation(currentSplashStep, defaultSplashCell);
 
-      for (let i = 0; i < Game.#ROW_LENGTH; i++) {
-        for (let j = 0; j < Game.#COLUMN_LENGTH; j++) {
-          strField += this.#getCell(Game.#SPLASH_SCREEN[i][j] || splashAnimation[i][j]);
-        }
-        strField += '\n';
-      }
-
-      this.gameElem.innerHTML = strField;
+      this.gameElem.innerHTML = this.#getStrField(Game.#SPLASH_SCREEN, splashAnimation);
     }
 
     const intervalId = setInterval(() => {
@@ -267,7 +277,7 @@ class Game {
         clearInterval(intervalId);
       }
 
-      if (splashStep === allSplashSteps * 2) {
+      if (splashStep === allSplashSteps * 2 - 1) {
         clearInterval(intervalId);
         callback();
       }
@@ -278,26 +288,17 @@ class Game {
     const field = this.#field;
     const figureField = this.#figureField;
 
-    let strField = '';
-
-    for (let i = 0; i < Game.#ROW_LENGTH; i++) {
-      for (let j = 0; j < Game.#COLUMN_LENGTH; j++) {
-        strField += this.#getCell(field[i][j] || figureField[i][j]);
-      }
-      strField += '\n';
-    }
-
-    this.gameElem.innerHTML = strField;
+    this.gameElem.innerHTML = this.#getStrField(field, figureField);
   };
 
-  #printNextFigure = () => {
+  #printNextFigure = (isDefault) => {
     const nextFigure = this.#nextFigure;
 
     let strField = '';
 
     for (let i = 0; i < Game.#FIGURE_MAX_HEIGHT; i++) {
       for (let j = 0; j < Game.#FIGURE_MAX_HEIGHT; j++) {
-        strField += this.#getCell(nextFigure[i] && nextFigure[i][j]);
+        strField += this.#getCell(isDefault ? false : nextFigure[i] && nextFigure[i][j]);
       }
       strField += '\n';
     }
@@ -553,6 +554,7 @@ class Game {
           localStorage.setItem(Game.#HI_SCORE_LABEL, this.#scores);
         }
         this.#clearCurrentTimeout();
+        this.#isGameInProgress = false;
         alert(`Game over, your scores: ${this.#scores}`)
       } else {
         this.scoresElem.innerText = this.#scores;
@@ -683,6 +685,6 @@ document.getElementById('button-game-sound').addEventListener('click', game.togg
 document.getElementById('button-left').addEventListener('click', game.moveFigureLeft);
 document.getElementById('button-right').addEventListener('click', game.moveFigureRight);
 document.getElementById('button-up').addEventListener('click', game.moveFigureDownQuickly);
-document.getElementById('button-down').addEventListener('onmousedown', game.moveFigureDown);
-document.getElementById('button-down').addEventListener('onmouseup', game.stopMovingFigureDown);
+document.getElementById('button-down').addEventListener('mousedown', game.moveFigureDown);
+document.getElementById('button-down').addEventListener('mouseup', game.stopMovingFigureDown);
 document.getElementById('button-rotate').addEventListener('click', game.rotateFigure);
