@@ -109,6 +109,9 @@ class Game {
   #isGameOn = false;
   #isSoundOn = false;
 
+  #moveLeftButtonInterval = 0;
+  #moveRightButtonInterval = 0;
+
   constructor(gameElem, gameInfoElem) {
     this.gameElem = gameElem;
     this.gameInfoElem = gameInfoElem;
@@ -499,6 +502,26 @@ class Game {
     this.continue();
   };
 
+  onMoveLeftButtonMouseDown = () => {
+    this.#moveLeftButtonInterval = setInterval(() => {
+      this.moveFigureLeft();
+    }, 50);
+  }
+
+  onMoveLeftButtonMouseUp = () => {
+    clearInterval(this.#moveLeftButtonInterval);
+  }
+
+  onMoveRightButtonMouseDown = () => {
+    this.#moveRightButtonInterval = setInterval(() => {
+      this.moveFigureRight();
+    }, 50);
+  }
+
+  onMoveRightButtonMouseUp = () => {
+    clearInterval(this.#moveRightButtonInterval);
+  }
+
   rotateFigure = () => {
     if (!this.#isGameInProgress) return;
 
@@ -618,12 +641,15 @@ class Game {
     this.#isGameOn = !this.#isGameOn;
 
     if (this.#isGameOn) {
-      this.#printSplash(() => {
+      // this.#printSplash(() => {
         this.#isGameInProgress = true;
         this.reset();
-      });
+      // });
     } else {
       this.#isGameInProgress = false;
+      this.#isSoundOn = false;
+      Game.#AUDIO.pause();
+      Game.#AUDIO.currentTime = 0;
     }
   };
 
@@ -682,8 +708,10 @@ document.getElementById('button-game-pause').addEventListener('click', game.togg
 document.getElementById('button-game-reset').addEventListener('click', game.reset);
 document.getElementById('button-game-sound').addEventListener('click', game.toggleSound);
 
-document.getElementById('button-left').addEventListener('click', game.moveFigureLeft);
-document.getElementById('button-right').addEventListener('click', game.moveFigureRight);
+document.getElementById('button-left').addEventListener('mousedown', game.onMoveLeftButtonMouseDown);
+document.getElementById('button-left').addEventListener('mouseup', game.onMoveLeftButtonMouseUp);
+document.getElementById('button-right').addEventListener('mousedown', game.onMoveRightButtonMouseDown);
+document.getElementById('button-right').addEventListener('mouseup', game.onMoveRightButtonMouseUp);
 document.getElementById('button-up').addEventListener('click', game.moveFigureDownQuickly);
 document.getElementById('button-down').addEventListener('mousedown', game.moveFigureDown);
 document.getElementById('button-down').addEventListener('mouseup', game.stopMovingFigureDown);
