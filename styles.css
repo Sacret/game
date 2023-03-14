@@ -299,6 +299,7 @@ body {
     0px 1px 3px 0px #262422,
     inset 5px 5px 10px 0px rgba(232, 196, 62, 0.9);
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .button:hover,
@@ -348,4 +349,8 @@ body {
 .text.big {
   font-size: 12px;
   font-weight: 900;
+}
+
+:focus {
+  outline: none !important;
 }
