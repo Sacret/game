@@ -575,6 +575,7 @@ class Game {
       if (isGameEnd) {
         if (this.#scores > Game.#HI_SCORE) {
           localStorage.setItem(Game.#HI_SCORE_LABEL, this.#scores);
+          this.#setHiScore();
         }
         this.#clearCurrentTimeout();
         this.#isGameInProgress = false;
@@ -641,10 +642,10 @@ class Game {
     this.#isGameOn = !this.#isGameOn;
 
     if (this.#isGameOn) {
-      // this.#printSplash(() => {
+      this.#printSplash(() => {
         this.#isGameInProgress = true;
         this.reset();
-      // });
+      });
     } else {
       this.#isGameInProgress = false;
       this.#isSoundOn = false;
@@ -710,9 +711,18 @@ document.getElementById('button-game-sound').addEventListener('click', game.togg
 
 document.getElementById('button-left').addEventListener('mousedown', game.onMoveLeftButtonMouseDown);
 document.getElementById('button-left').addEventListener('mouseup', game.onMoveLeftButtonMouseUp);
+document.getElementById('button-left').addEventListener('touchstart', game.onMoveLeftButtonMouseDown);
+document.getElementById('button-left').addEventListener('touchend', game.onMoveLeftButtonMouseUp);
+
 document.getElementById('button-right').addEventListener('mousedown', game.onMoveRightButtonMouseDown);
 document.getElementById('button-right').addEventListener('mouseup', game.onMoveRightButtonMouseUp);
+document.getElementById('button-right').addEventListener('touchstart', game.onMoveRightButtonMouseDown);
+document.getElementById('button-right').addEventListener('touchend', game.onMoveRightButtonMouseUp);
+
 document.getElementById('button-up').addEventListener('click', game.moveFigureDownQuickly);
+document.getElementById('button-rotate').addEventListener('click', game.rotateFigure);
+
 document.getElementById('button-down').addEventListener('mousedown', game.moveFigureDown);
 document.getElementById('button-down').addEventListener('mouseup', game.stopMovingFigureDown);
-document.getElementById('button-rotate').addEventListener('click', game.rotateFigure);
+document.getElementById('button-down').addEventListener('touchstart', game.moveFigureDown);
+document.getElementById('button-down').addEventListener('touchend', game.stopMovingFigureDown);
