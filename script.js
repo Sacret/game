@@ -64,7 +64,7 @@ class Game {
     4: 1500,
   };
 
-  static #EMPTY_FIELD =  [...Array(Game.#ROW_LENGTH)].map(
+  static #EMPTY_FIELD = [...Array(Game.#ROW_LENGTH)].map(
     row => [...Array(Game.#COLUMN_LENGTH)].map(column => false),
   );
 
@@ -137,7 +137,7 @@ class Game {
     Game.#AUDIO.volume = 0.5;
 
     this.#nextFigure = this.#getRandomFigure();
-    this.#printNextFigure(true);
+    this.#printNextFigure();
   }
 
   #setHiScore = () => {
@@ -171,7 +171,6 @@ class Game {
       for (let j = 0; j < Game.#COLUMN_LENGTH; j++) {
         strField += this.#getCell(field1[i][j] || field2[i][j]);
       }
-      strField += '\n';
     }
 
     return strField;
@@ -288,22 +287,18 @@ class Game {
   }
 
   #printField = () => {
-    const field = this.#field;
-    const figureField = this.#figureField;
-
-    this.gameElem.innerHTML = this.#getStrField(field, figureField);
+    this.gameElem.innerHTML = this.#getStrField(this.#field, this.#figureField);
   };
 
-  #printNextFigure = (isDefault) => {
+  #printNextFigure = () => {
     const nextFigure = this.#nextFigure;
 
     let strField = '';
 
     for (let i = 0; i < Game.#FIGURE_MAX_HEIGHT; i++) {
       for (let j = 0; j < Game.#FIGURE_MAX_HEIGHT; j++) {
-        strField += this.#getCell(isDefault ? false : nextFigure[i] && nextFigure[i][j]);
+        strField += this.#getCell(nextFigure && nextFigure[i] && nextFigure[i][j]);
       }
-      strField += '\n';
     }
 
     this.nextFigureElem.innerHTML = strField;
@@ -341,16 +336,16 @@ class Game {
     }
 
     const rowDiff = field.length - newField.length;
-    let emptyItems = [];
+    let emptyField = [];
 
     if (rowDiff) {
-      emptyItems = [...Array(rowDiff)].map(
+      emptyField = [...Array(rowDiff)].map(
         row => [...Array(Game.#COLUMN_LENGTH)].map(column => false)
       );
       this.#scores += Game.#SCORES_LEVEL[rowDiff];
     }
 
-    this.#field = [...emptyItems, ...newField];
+    this.#field = [...emptyField, ...newField];
   }
 
   #getMaxPosition = (currentFigure) => {
@@ -384,7 +379,7 @@ class Game {
         }
 
         return false;
-      })
+      }),
     );
 
     this.#printField();
@@ -426,8 +421,6 @@ class Game {
         if (fieldRow && fieldRow[this.#currentPositionX + j - 1]) {
           return true;
         }
-
-        break;
       }
     }
 
@@ -448,8 +441,6 @@ class Game {
         if (fieldRow && fieldRow[this.#currentPositionX + j + 1]) {
           return true;
         }
-
-        break;
       }
     }
 
@@ -480,7 +471,7 @@ class Game {
     this.#setFigureField(this.#step - 1);
   };
 
-  moveFigureDown = () => {
+  moveFigureDown = (e) => {
     if (!this.#isGameInProgress) return;
 
     this.#currentDelay = Game.#SPEED_DELAY;
@@ -502,20 +493,22 @@ class Game {
     this.continue();
   };
 
-  onMoveLeftButtonMouseDown = () => {
+  onMoveLeftButtonMouseDown = (e) => {
     this.#moveLeftButtonInterval = setInterval(() => {
       this.moveFigureLeft();
     }, 50);
+    e.preventDefault();
   }
 
   onMoveLeftButtonMouseUp = () => {
     clearInterval(this.#moveLeftButtonInterval);
   }
 
-  onMoveRightButtonMouseDown = () => {
+  onMoveRightButtonMouseDown = (e) => {
     this.#moveRightButtonInterval = setInterval(() => {
       this.moveFigureRight();
     }, 50);
+    e.preventDefault();
   }
 
   onMoveRightButtonMouseUp = () => {

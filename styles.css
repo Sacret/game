@@ -194,7 +194,7 @@ body {
 .arrow-symbol {
   display: flex;
   justify-content: space-between;
-  width: 30px;
+  width: 32px;
 }
 
 .arrow-symbol:first-child,
