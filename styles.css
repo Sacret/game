@@ -72,9 +72,12 @@ body {
 }
 
 .bg-cell {
-  width: 12px;
-  height: 12px;
+  display: flex;
   margin-top: 3px;
+  width: 11px;
+  height: 11px;
+  font-size: 14px;
+  line-height: 10px;
 }
 
 .frame {
@@ -84,7 +87,7 @@ body {
 
 .screen {
   display: flex;
-  width: 155px;
+  width: 156px;
   background-color: #989f7e;
   border: 1px solid #000;
   outline: 1px solid #000;
@@ -94,15 +97,15 @@ body {
 }
 
 #game {
+  display: flex;
+  flex-wrap: wrap;
   width: 110px;
   height: 220px;
-  font-size: 11px;
-  line-height: 11px;
   outline: 2px solid #000;
 }
 
 #game-info {
-  width: 45px;
+  width: 46px;
   font-family: 'Orbitron', sans-serif;
   font-size: 10px;
   text-align: right;
@@ -127,17 +130,20 @@ body {
 }
 
 #next-figure {
+  display: flex;
+  flex-wrap: wrap;
   width: 44px;
   height: 44px;
   padding: 5px 2px 0;
-  font-size: 11px;
   line-height: 11px;
 }
 
 .cell {
-  display: inline-flex;
+  display: flex;
   height: 11px;
   width: 11px;
+  font-size: 14px;
+  line-height: 10px;
 }
 
 .filled {
@@ -194,6 +200,18 @@ body {
 .arrow-symbol:first-child,
 .arrow-symbol:last-child {
   justify-content: center;
+}
+
+.arrow-symbol:nth-child(2) > span:first-child {
+  transform: rotate(-90deg);
+}
+
+.arrow-symbol:nth-child(2) > span:last-child {
+  transform: rotate(90deg);
+}
+
+.arrow-symbol:last-child {
+  transform: rotate(180deg);
 }
 
 .line-buttons {
