@@ -1,12 +1,12 @@
 class Game {
+  static #DEBUG = window.location.search.includes('debug');
   static #ROW_LENGTH = 20;
   static #COLUMN_LENGTH = 10;
-  static #START_POSITION_X = 3;
+  static #START_COLUMN = 3;
 
   static #FIGURES = {
     // I
     0: [
-      [false, false, false, false],
       [true, true, true, true]
     ],
     // J
@@ -40,11 +40,104 @@ class Game {
       [false, true, true]
     ],
   };
+  static #FIGURES_ROTATION = {
+    0: [{
+      row: -2,
+      column: 1,
+    }, {
+      row: 1,
+      column: -1,
+    }, {
+      row: -1,
+      column: 2,
+    }, {
+      row: 2,
+      column: -2,
+    }],
+    1: [{
+      row: -1,
+      column: 0,
+    }, {
+      row: 0,
+      column: 0,
+    }, {
+      row: 0,
+      column: 1,
+    }, {
+      row: 1,
+      column: -1,
+    }],
+    2: [{
+      row: -1,
+      column: 0,
+    }, {
+      row: 0,
+      column: 0,
+    }, {
+      row: 0,
+      column: 1,
+    }, {
+      row: 1,
+      column: -1,
+    }],
+    3: [{
+      row: 0,
+      column: 0,
+    }, {
+      row: 0,
+      column: 0,
+    }, {
+      row: 0,
+      column: 0,
+    }, {
+      row: 0,
+      column: 0,
+    }],
+    4: [{
+      row: -1,
+      column: 0,
+    }, {
+      row: 0,
+      column: 0,
+    }, {
+      row: 0,
+      column: 1,
+    }, {
+      row: 1,
+      column: -1,
+    }],
+    5: [{
+      row: -1,
+      column: 0,
+    }, {
+      row: 0,
+      column: 0,
+    }, {
+      row: 0,
+      column: 1,
+    }, {
+      row: 1,
+      column: -1,
+    }],
+    6: [{
+      row: -1,
+      column: 0,
+    }, {
+      row: 0,
+      column: 0,
+    }, {
+      row: 0,
+      column: 1,
+    }, {
+      row: 1,
+      column: -1,
+    }],
+  };
   static #FIGURES_COUNT = 7;
   static #FIGURE_MAX_HEIGHT = 4;
   static #CHANGE_DELAY_INTERVAl = 10;
 
-  static #START_DELAY = 1000;
+  static #START_DELAY = Game.#DEBUG ? 5000 : 1000;
   static #DIFF_DELAY = 50;
   static #SPEED_DELAY = 100;
   static #MIN_DELAY = 0;
@@ -93,14 +186,16 @@ class Game {
 
   #scores = 0;
   #figuresCount = 0;
-  #step = 0;
-  #currentPositionX = Game.#START_POSITION_X;
+  #currentRow = -1;
+  #currentColumn = Game.#START_COLUMN;
+  #rotations = 0;
 
   #currentTimeoutId = 0;
   #delay = Game.#START_DELAY;
   #currentDelay = this.#delay;
 
   #figure = null;
+  #figureIndex = null;
   #nextFigure = null;
   #field = Game.#EMPTY_FIELD;
   #figureField = Game.#EMPTY_FIELD;
@@ -138,15 +233,15 @@ class Game {
 
     this.#nextFigure = this.#getRandomFigure();
     this.#printNextFigure();
-  }
+  };
 
   #setHiScore = () => {
     this.hiScoresElem.innerText = Game.#HI_SCORE || 0;
-  }
+  };
 
   #clearCurrentTimeout = () => {
     clearTimeout(this.#currentTimeoutId);
-  }
+  };
 
   #changeDelay = () => {
     if (this.#figuresCount % Game.#CHANGE_DELAY_INTERVAl === 0) {
@@ -158,8 +253,9 @@ class Game {
   };
 
   #getRandomFigure = () => {
-    let rand = Math.random() * Game.#FIGURES_COUNT - 0.5;
-    return Game.#FIGURES[Math.round(rand)];
+    const rand = Math.random() * Game.#FIGURES_COUNT - 0.5;
+    this.#figureIndex = Math.round(rand);
+    return Game.#FIGURES[this.#figureIndex];
   };
 
   #getCell = (val) => `<span class="cell ${val ? 'filled' : 'empty'}">${Game.#CELL}</span>`;
@@ -174,7 +270,7 @@ class Game {
     }
 
     return strField;
-  }
+  };
 
   #getAnimation = (splashStep, defaultSplashCell) => {
     const ranges = [19, 28, 47, 55, 73, 80, 97, 103, 119, 124, 139, 143, 157, 160, 173, 175, 187, 188, 199];
@@ -346,129 +442,217 @@ class Game {
     }
 
     this.#field = [...emptyField, ...newField];
-  }
+  };
 
-  #getMaxPosition = (currentFigure) => {
-    let maxPosition = 0;
+  #getMaxColumn = (
+    currentFigure,
+    currentRow = this.#currentRow,
+    currentColumn = this.#currentColumn,
+  ) => {
+    const figureRows = currentFigure.length;
+    const figureColumns = currentFigure[0].length;
 
-    for (let i = 0; i < currentFigure.length; i++) {
-      for (let j = 0; j < currentFigure[0].length; j++) {
-        if (currentFigure[i][j] && (j + 1) > maxPosition) {
-          maxPosition = j + 1;
+    let maxColumn = Game.#COLUMN_LENGTH - figureColumns;
+
+    for (let i = 0; i < figureRows; i++) {
+      let prevFilledColumn = -1;
+
+      for (let j = figureColumns - 1; j >= 0; j--) {
+        if (!currentFigure[i][j] || j < prevFilledColumn) continue;
+
+        prevFilledColumn = j;
+
+        const fieldColumnIndex = currentRow + i >= 0
+          ? this.#field[currentRow + i]
+            .findIndex((elem, index) => {
+              return (index > currentColumn) && elem;
+            })
+          : -1;
+
+        if (fieldColumnIndex !== -1 && fieldColumnIndex - j - 1 < maxColumn) {
+          maxColumn = fieldColumnIndex - j - 1;
         }
       }
     }
 
-    return maxPosition;
+    return maxColumn;
   };
 
-  #setFigureField = (currentStep) => {
+  #getMinColumn = (
+    currentFigure,
+    currentRow = this.#currentRow,
+    currentColumn = this.#currentColumn,
+  ) => {
+    const figureRows = currentFigure.length;
+    const figureColumns = currentFigure[0].length;
+
+    let minColumn = 0;
+
+    for (let i = 0; i < figureRows; i++) {
+      let prevFilledColumn = figureColumns - 1;
+
+      for (let j = 0; j < figureColumns; j++) {
+        if (!currentFigure[i][j] || j > prevFilledColumn) continue;
+
+        prevFilledColumn = j;
+
+        const fieldColumnIndex = currentRow + i >= 0
+          ? this.#field[currentRow + i]
+            .findLastIndex((elem, index) => {
+              return (index < currentColumn + figureColumns) && elem;
+            })
+          : -1;
+
+        if (fieldColumnIndex !== -1 && fieldColumnIndex - j + 1 > minColumn) {
+          minColumn = fieldColumnIndex - j + 1;
+        }
+      }
+    }
+
+    return minColumn;
+  };
+
+  #getMaxRow = (
+    currentFigure,
+    currentRow = this.#currentRow,
+    currentColumn = this.#currentColumn,
+  ) => {
+    const figureRows = currentFigure.length;
+    const figureColumns = currentFigure[0].length;
+
+    let maxRow = Game.#ROW_LENGTH - figureRows;
+
+    for (let j = 0; j < figureColumns; j++) {
+      let prevFilledRow = figureRows - 1;
+
+      for (let i = figureRows - 1; i >= 0; i--) {
+        if (!currentFigure[i][j] || i < prevFilledRow) continue;
+
+        prevFilledRow = i;
+
+        const fieldColumn = this.#field.map(row => row[currentColumn + j]);
+        const fieldRowIndex = fieldColumn
+          .findIndex((elem, index) => {
+            return (index > currentRow) && elem;
+          });
+
+        if (fieldRowIndex !== -1 && fieldRowIndex - i - 1 < maxRow) {
+          maxRow = fieldRowIndex - i - 1;
+        }
+      }
+    }
+
+    return maxRow;
+  };
+
+  #getMinRow = (
+    currentFigure,
+    currentRow = this.#currentRow,
+    currentColumn = this.#currentColumn,
+  ) => {
+    const figureRows = currentFigure.length;
+    const figureColumns = currentFigure[0].length;
+
+    let minRow = 0;
+
+    for (let i = 0; i < figureRows; i++) {
+      let prevFilledRow = figureRows - 1;
+
+      for (let j = 0; j < figureColumns; j++) {
+        if (!currentFigure[i][j] || i > prevFilledRow) continue;
+
+        prevFilledRow = i;
+
+        const fieldColumn = this.#field.map(row => row[currentColumn + j]);
+        const fieldRowIndex = fieldColumn
+          .findLastIndex((elem, index) => {
+            return (index < currentRow + figureRows) && elem;
+          })
+
+        if (fieldRowIndex !== -1 && fieldRowIndex + i + 1 > minRow) {
+          minRow = fieldRowIndex + i + 1;
+        }
+      }
+    }
+
+    return minRow;
+  };
+
+  #getNextPosition = (currentFigure) => {
+    const { row, column } = Game.#FIGURES_ROTATION[this.#figureIndex][this.#rotations % 4];
+
+    let nextRow = this.#currentRow + row < 0 ? 0 : this.#currentRow + row;
+    let nextColumn = this.#currentColumn + column < 0 ? 0 : this.#currentColumn + column;
+
+    const maxRow = this.#getMaxRow(currentFigure, nextRow, nextColumn);
+    const minRow = this.#getMinRow(currentFigure, nextRow, nextColumn);
+
+    const maxColumn = this.#getMaxColumn(currentFigure, nextRow, nextColumn);
+    const minColumn = this.#getMinColumn(currentFigure, nextRow, nextColumn);
+
+    if (minRow > maxRow) {
+      nextRow = -1;
+    } else if (nextRow >= maxRow) {
+      nextRow = maxRow;
+    } else if (nextRow <= minRow) {
+      nextRow = minRow;
+    }
+
+    if (minColumn > maxColumn) {
+      nextColumn = -1;
+    } else if (nextColumn >= maxColumn) {
+      nextColumn = maxColumn;
+    } else if (nextColumn <= minColumn) {
+      nextColumn = minColumn;
+    }
+
+    return {
+      nextRow,
+      nextColumn,
+    };
+  };
+
+  #setFigureField = () => {
     this.#figureField = [...Array(Game.#ROW_LENGTH)].map(
       (_, row) => [...Array(Game.#COLUMN_LENGTH)].map((_, column) => {
-        const rowDiff = currentStep - row;
         const figureRows = this.#figure.length;
         const figureColumns = this.#figure[0].length;
 
-        if (rowDiff < figureRows) {
-          const columnDiff = column - this.#currentPositionX;
-          const figureRow = this.#figure[figureRows - 1 - rowDiff];
-
-          return (columnDiff >= 0 && columnDiff < figureColumns && figureRow)
-            ? figureRow[columnDiff]
-            : false;
+        if (row < this.#currentRow
+          || row >= this.#currentRow + figureRows
+          || column < this.#currentColumn
+          || column >= this.#currentColumn + figureColumns
+        ) {
+          return false;
         }
 
-        return false;
+        return this.#figure[row - this.#currentRow][column - this.#currentColumn];
       }),
     );
 
     this.#printField();
   };
 
-  #isFieldBottomTouch = () => {
-    const figureRows = this.#figure.length;
-
-    for (let i = 0; i < figureRows; i++) {
-      for (let j = 0; j < this.#figure[i].length; j++) {
-        const currentCell = this.#figure[i][j];
-
-        if (!currentCell) continue;
-
-        if (this.#step >= Game.#ROW_LENGTH) return true;
-
-        const fieldRow = this.#field[this.#step - figureRows + 1 + i];
-
-        if (fieldRow && fieldRow[this.#currentPositionX + j]) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  };
-
-  #isFieldLeftTouch = () => {
-    const figureRows = this.#figure.length;
-
-    for (let i = 0; i < figureRows; i++) {
-      for (let j = 0; j < this.#figure[i].length; j++) {
-        const currentCell = this.#figure[i][j];
-
-        if (!currentCell) continue;
-
-        const fieldRow = this.#field[this.#step - figureRows + i];
-
-        if (fieldRow && fieldRow[this.#currentPositionX + j - 1]) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  };
-
-  #isFieldRightTouch = () => {
-    const figureRows = this.#figure.length;
-
-    for (let i = 0; i < figureRows; i++) {
-      for (let j = this.#figure[i].length -1; j >= 0; j--) {
-        const currentCell = this.#figure[i][j];
-
-        if (!currentCell) continue;
-
-        const fieldRow = this.#field[this.#step - figureRows + i];
-
-        if (fieldRow && fieldRow[this.#currentPositionX + j + 1]) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  };
-
   moveFigureLeft = () => {
     if (!this.#isGameInProgress) return;
 
-    const minPosition = 0;
-    if (!this.#isFieldLeftTouch()) {
-      this.#currentPositionX = this.#currentPositionX <= minPosition
-        ? minPosition
-        : this.#currentPositionX - 1;
-    }
-    this.#setFigureField(this.#step - 1);
+    const minColumn = this.#getMinColumn(this.#figure);
+    this.#currentColumn = this.#currentColumn <= minColumn
+      ? minColumn
+      : this.#currentColumn - 1;
+
+    this.#setFigureField();
   };
 
   moveFigureRight = () => {
     if (!this.#isGameInProgress) return;
 
-    const maxPosition = Game.#COLUMN_LENGTH - this.#getMaxPosition(this.#figure);
-    if (!this.#isFieldRightTouch()) {
-      this.#currentPositionX = this.#currentPositionX >= maxPosition
-        ? maxPosition
-        : this.#currentPositionX + 1;
-    }
-    this.#setFigureField(this.#step - 1);
+    const maxColumn = this.#getMaxColumn(this.#figure);
+    this.#currentColumn = this.#currentColumn >= maxColumn
+      ? maxColumn
+      : this.#currentColumn + 1;
+
+    this.#setFigureField();
   };
 
   moveFigureDown = (e) => {
@@ -498,22 +682,22 @@ class Game {
       this.moveFigureLeft();
     }, 50);
     e.preventDefault();
-  }
+  };
 
   onMoveLeftButtonMouseUp = () => {
     clearInterval(this.#moveLeftButtonInterval);
-  }
+  };
 
   onMoveRightButtonMouseDown = (e) => {
     this.#moveRightButtonInterval = setInterval(() => {
       this.moveFigureRight();
     }, 50);
     e.preventDefault();
-  }
+  };
 
   onMoveRightButtonMouseUp = () => {
     clearInterval(this.#moveRightButtonInterval);
-  }
+  };
 
   rotateFigure = () => {
     if (!this.#isGameInProgress) return;
@@ -527,24 +711,19 @@ class Game {
         if (!newFigure[j]) {
           newFigure[j] = [];
         }
-
         newFigure[j][figureRows - 1 - i] = this.#figure[i][j];
       }
     }
 
-    const nextStep = this.#step - (figureRows - newFigure.length);
-    this.#step = nextStep < Game.#ROW_LENGTH ? nextStep : Game.#ROW_LENGTH;
+    const { nextRow, nextColumn } = this.#getNextPosition(newFigure);
 
-    const nextPosition = this.#currentPositionX - (figureColumns - newFigure[0].length);
-    const maxPosition = Game.#COLUMN_LENGTH - this.#getMaxPosition(newFigure);
-    if (nextPosition >= maxPosition) {
-      this.#currentPositionX = maxPosition;
-    } else if (nextPosition <= 0) {
-      this.#currentPositionX = 0;
+    if (nextRow !== -1 && nextColumn !== -1) {
+      this.#figure = newFigure;
+      this.#currentRow = nextRow;
+      this.#currentColumn = nextColumn;
+      this.#rotations++;
+      this.#setFigureField();
     }
-
-    this.#figure = newFigure;
-    this.#setFigureField(this.#step - 1);
   };
 
   continue = () => {
@@ -552,16 +731,21 @@ class Game {
 
     let isGameEnd = false;
 
-    if (this.#step === 0) {
+    if (this.#currentRow === -1) {
       this.#figure = this.#nextFigure;
       this.#nextFigure = this.#getRandomFigure();
+      this.#rotations = 0;
       this.#figuresCount++;
       this.#figureField = Game.#EMPTY_FIELD;
+      this.#currentRow = 0;
       this.#changeDelay();
       this.#printNextFigure();
     }
 
-    if (this.#isFieldBottomTouch()) {
+    const maxRow = this.#getMaxRow(this.#figure);
+    this.#setFigureField();
+
+    if (this.#currentRow >= maxRow) {
       this.#mergeFields();
       isGameEnd = this.#checkEndGame();
 
@@ -580,12 +764,11 @@ class Game {
           this.#currentDelay = this.#delay;
         }
 
-        this.#step = 0;
-        this.#currentPositionX = Game.#START_POSITION_X;
+        this.#currentRow = -1;
+        this.#currentColumn = Game.#START_COLUMN;
       }
     } else {
-      this.#setFigureField(this.#step);
-      this.#step++;
+      this.#currentRow++;
     }
 
     if (!isGameEnd) {
@@ -602,8 +785,8 @@ class Game {
 
     this.#scores = 0;
     this.#figuresCount = 0;
-    this.#step = 0;
-    this.#currentPositionX = Game.#START_POSITION_X;
+    this.#currentRow = -1;
+    this.#currentColumn = Game.#START_COLUMN;
 
     this.#currentTimeoutId = 0;
     this.#delay = Game.#START_DELAY;
@@ -635,10 +818,15 @@ class Game {
     this.#isGameOn = !this.#isGameOn;
 
     if (this.#isGameOn) {
-      this.#printSplash(() => {
+      if (Game.#DEBUG) {
         this.#isGameInProgress = true;
         this.reset();
-      });
+      } else {
+        this.#printSplash(() => {
+          this.#isGameInProgress = true;
+          this.reset();
+        });
+      }
     } else {
       this.#isGameInProgress = false;
       this.#isSoundOn = false;
@@ -657,7 +845,7 @@ class Game {
     }
 
     this.#isSoundOn = !this.#isSoundOn;
-  }
+  };
 };
 
 const gameElem = document.getElementById('game');
