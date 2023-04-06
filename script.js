@@ -186,7 +186,7 @@ class Game {
 
   #scores = 0;
   #figuresCount = 0;
-  #currentRow = -1;
+  #currentRow = 0;
   #currentColumn = Game.#START_COLUMN;
   #rotations = 0;
 
@@ -197,6 +197,7 @@ class Game {
   #figure = null;
   #figureIndex = null;
   #nextFigure = null;
+  #nextFigureIndex = null;
   #field = Game.#EMPTY_FIELD;
   #figureField = Game.#EMPTY_FIELD;
 
@@ -230,9 +231,6 @@ class Game {
 
     Game.#AUDIO.loop = true;
     Game.#AUDIO.volume = 0.5;
-
-    this.#nextFigure = this.#getRandomFigure();
-    this.#printNextFigure();
   };
 
   #setHiScore = () => {
@@ -254,8 +252,8 @@ class Game {
 
   #getRandomFigure = () => {
     const rand = Math.random() * Game.#FIGURES_COUNT - 0.5;
-    this.#figureIndex = Math.round(rand);
-    return Game.#FIGURES[this.#figureIndex];
+    this.#nextFigureIndex = Math.round(rand);
+    return Game.#FIGURES[this.#nextFigureIndex];
   };
 
   #getCell = (val) => `<span class="cell ${val ? 'filled' : 'empty'}">${Game.#CELL}</span>`;
@@ -731,17 +729,6 @@ class Game {
 
     let isGameEnd = false;
 
-    if (this.#currentRow === -1) {
-      this.#figure = this.#nextFigure;
-      this.#nextFigure = this.#getRandomFigure();
-      this.#rotations = 0;
-      this.#figuresCount++;
-      this.#figureField = Game.#EMPTY_FIELD;
-      this.#currentRow = 0;
-      this.#changeDelay();
-      this.#printNextFigure();
-    }
-
     const maxRow = this.#getMaxRow(this.#figure);
     this.#setFigureField();
 
@@ -764,8 +751,19 @@ class Game {
           this.#currentDelay = this.#delay;
         }
 
-        this.#currentRow = -1;
+        this.#currentRow = 0;
         this.#currentColumn = Game.#START_COLUMN;
+
+        this.#figure = this.#nextFigure;
+        this.#figureIndex = this.#nextFigureIndex;
+        this.#nextFigure = this.#getRandomFigure();
+
+        this.#rotations = 0;
+        this.#figuresCount++;
+        this.#figureField = Game.#EMPTY_FIELD;
+
+        this.#changeDelay();
+        this.#printNextFigure();
       }
     } else {
       this.#currentRow++;
@@ -785,7 +783,7 @@ class Game {
 
     this.#scores = 0;
     this.#figuresCount = 0;
-    this.#currentRow = -1;
+    this.#currentRow = 0;
     this.#currentColumn = Game.#START_COLUMN;
 
     this.#currentTimeoutId = 0;
@@ -793,13 +791,16 @@ class Game {
     this.#currentDelay = this.#delay;
 
     this.#field = Game.#EMPTY_FIELD;
-    this.#figure = null;
+    this.#figure = this.#getRandomFigure();
+    this.#figureIndex = this.#nextFigureIndex;
+    this.#nextFigure = this.#getRandomFigure();
     this.#figureField = Game.#EMPTY_FIELD;
 
     this.scoresElem.innerText = this.#scores;
 
     this.#isGameInProgress = true;
 
+    this.#printNextFigure();
     this.start();
   };
 
