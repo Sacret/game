@@ -251,9 +251,9 @@ class Game {
   };
 
   #getRandomFigure = () => {
-    const rand = Math.random() * Game.#FIGURES_COUNT - 0.5;
-    this.#nextFigureIndex = Math.round(rand);
-    return Game.#FIGURES[this.#nextFigureIndex];
+    const rand = Math.round(Math.random() * Game.#FIGURES_COUNT - 0.5);
+    this.#nextFigureIndex = rand;
+    return Game.#FIGURES[rand];
   };
 
   #getCell = (val) => `<span class="cell ${val ? 'filled' : 'empty'}">${Game.#CELL}</span>`;
@@ -487,7 +487,7 @@ class Game {
     let minColumn = 0;
 
     for (let i = 0; i < figureRows; i++) {
-      let prevFilledColumn = figureColumns - 1;
+      let prevFilledColumn = figureColumns;
 
       for (let j = 0; j < figureColumns; j++) {
         if (!currentFigure[i][j] || j > prevFilledColumn) continue;
@@ -521,7 +521,7 @@ class Game {
     let maxRow = Game.#ROW_LENGTH - figureRows;
 
     for (let j = 0; j < figureColumns; j++) {
-      let prevFilledRow = figureRows - 1;
+      let prevFilledRow = -1;
 
       for (let i = figureRows - 1; i >= 0; i--) {
         if (!currentFigure[i][j] || i < prevFilledRow) continue;
@@ -554,7 +554,7 @@ class Game {
     let minRow = 0;
 
     for (let i = 0; i < figureRows; i++) {
-      let prevFilledRow = figureRows - 1;
+      let prevFilledRow = figureRows;
 
       for (let j = 0; j < figureColumns; j++) {
         if (!currentFigure[i][j] || i > prevFilledRow) continue;
