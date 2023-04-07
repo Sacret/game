@@ -158,14 +158,14 @@ body {
 .horizontal-buttons {
   display: flex;
   justify-content: space-around;
-  width: 180px;
+  width: 200px;
   margin-top: 40px;
 }
 
 .horizontal-texts {
   display: flex;
   justify-content: space-between;
-  width: 180px;
+  width: 200px;
   margin-top: 5px;
 }
 
