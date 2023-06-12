@@ -9,12 +9,12 @@ class Game {
     0: [
       [true, true, true, true]
     ],
-    // J
+    // L
     1: [
       [true, false, false],
       [true, true, true]
     ],
-    // L
+    // J
     2: [
       [false, false, true],
       [true, true, true]
@@ -220,12 +220,14 @@ class Game {
       <div id="next-figure"></div>
       <div class="score-text">Speed</div>
       <div id="speed">1</div>
+      <div id="paused" class="invisible blinking">PAUSED</div>
     `;
 
     this.scoresElem = document.getElementById('score');
     this.hiScoresElem = document.getElementById('hi-score');
     this.nextFigureElem = document.getElementById('next-figure');
     this.speedElem = document.getElementById('speed');
+    this.pausedElem = document.getElementById('paused');
 
     this.#setHiScore();
 
@@ -799,22 +801,30 @@ class Game {
     this.scoresElem.innerText = this.#scores;
 
     this.#isGameInProgress = true;
+    document.getElementById('button-game-pause').classList.remove('inactive');
+    this.pausedElem.classList.add('invisible');
 
     this.#printNextFigure();
     this.start();
   };
 
   togglePause = () => {
+    if (!this.#isGameOn) return;
+
     this.#isGameInProgress = !this.#isGameInProgress;
 
     if (this.#isGameInProgress) {
       this.continue();
+      this.pausedElem.classList.add('invisible');
+    } else {
+      this.pausedElem.classList.remove('invisible');
     }
   };
 
   toggleOn = () => {
     this.gameElem.classList.toggle('invisible');
     this.gameInfoElem.classList.toggle('invisible');
+    const pauseButton = document.getElementById('button-game-pause');
 
     this.#isGameOn = !this.#isGameOn;
 
@@ -830,6 +840,8 @@ class Game {
       }
     } else {
       this.#isGameInProgress = false;
+      pauseButton.classList.add('inactive');
+      this.pausedElem.classList.add('invisible');
       this.#isSoundOn = false;
       Game.#AUDIO.pause();
       Game.#AUDIO.currentTime = 0;

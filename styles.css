@@ -1,5 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;700&family=Orbitron&display=swap');
 
+@keyframes blinkingAnimation {
+  0%   { opacity:1; }
+  50%  { opacity:0; }
+  100% { opacity:1; }
+}
+
 body {
   min-height: 100vh;
   display: flex;
@@ -115,6 +121,17 @@ body {
 
 .invisible {
   visibility: hidden;
+}
+
+.blinking {
+  padding: 5px 3px 0 5px;
+  font-size: 7px;
+  font-weight: 900;
+  animation: blinkingAnimation .5s infinite;
+}
+
+.inactive {
+  pointer-events: none;
 }
 
 .score-text {
