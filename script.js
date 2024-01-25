@@ -198,6 +198,7 @@ class Game {
   #figureIndex = null;
   #nextFigure = null;
   #nextFigureIndex = null;
+  #figuresHistory = [4, 6, 4, 6]; // S Z S Z
   #field = Game.#EMPTY_FIELD;
   #figureField = Game.#EMPTY_FIELD;
 
@@ -253,8 +254,21 @@ class Game {
   };
 
   #getRandomFigure = () => {
-    const rand = Math.round(Math.random() * Game.#FIGURES_COUNT - 0.5);
+    let rand = 0; // I
+
+    if (this.#figuresCount === 0) {
+      rand = [0, 1, 2, 5][Math.floor(Math.random() * 4)]; // I L J T
+    } else {
+      for (let roll = 0; roll < 4; ++roll) {
+        rand = Math.floor(Math.random() * Game.#FIGURES_COUNT);
+        if (!this.#figuresHistory.includes(rand)) break;
+      }
+    }
+
     this.#nextFigureIndex = rand;
+    this.#figuresHistory.shift();
+    this.#figuresHistory.push(rand);
+
     return Game.#FIGURES[rand];
   };
 
