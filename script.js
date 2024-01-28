@@ -209,6 +209,8 @@ class Game {
   #moveLeftButtonInterval = 0;
   #moveRightButtonInterval = 0;
 
+  #randomizer = null;
+
   constructor(gameElem, gameInfoElem) {
     this.gameElem = gameElem;
     this.gameInfoElem = gameInfoElem;
@@ -232,6 +234,8 @@ class Game {
 
     this.#setHiScore();
 
+    this.#randomizer = this.#getRandomFigure();
+
     Game.#AUDIO.loop = true;
     Game.#AUDIO.volume = 0.5;
   };
@@ -253,23 +257,24 @@ class Game {
     }
   };
 
-  #getRandomFigure = () => {
-    let rand = 0; // I
+  * #getRandomFigure() {
+    let rand = [0, 1, 2, 5][Math.floor(Math.random() * 4)]; // I L J T
+    yield Game.#FIGURES[rand];
 
-    if (this.#figuresCount === 0) {
-      rand = [0, 1, 2, 5][Math.floor(Math.random() * 4)]; // I L J T
-    } else {
+    this.#figuresHistory = [4, 6, 4, rand]; // S Z S ...
+
+    while(true) {
       for (let roll = 0; roll < 4; ++roll) {
         rand = Math.floor(Math.random() * Game.#FIGURES_COUNT);
         if (!this.#figuresHistory.includes(rand)) break;
       }
+
+      this.#nextFigureIndex = rand;
+      this.#figuresHistory.shift();
+      this.#figuresHistory.push(rand);
+
+      yield Game.#FIGURES[rand];
     }
-
-    this.#nextFigureIndex = rand;
-    this.#figuresHistory.shift();
-    this.#figuresHistory.push(rand);
-
-    return Game.#FIGURES[rand];
   };
 
   #getCell = (val) => `<span class="cell ${val ? 'filled' : 'empty'}">${Game.#CELL}</span>`;
@@ -772,7 +777,7 @@ class Game {
 
         this.#figure = this.#nextFigure;
         this.#figureIndex = this.#nextFigureIndex;
-        this.#nextFigure = this.#getRandomFigure();
+        this.#nextFigure = this.#randomizer.next().value;
 
         this.#rotations = 0;
         this.#figuresCount++;
@@ -796,6 +801,7 @@ class Game {
 
   reset = () => {
     this.#clearCurrentTimeout();
+    this.#randomizer = this.#getRandomFigure();
 
     this.#scores = 0;
     this.#figuresCount = 0;
@@ -807,9 +813,9 @@ class Game {
     this.#currentDelay = this.#delay;
 
     this.#field = Game.#EMPTY_FIELD;
-    this.#figure = this.#getRandomFigure();
+    this.#figure = this.#randomizer.next().value;
     this.#figureIndex = this.#nextFigureIndex;
-    this.#nextFigure = this.#getRandomFigure();
+    this.#nextFigure = this.#randomizer.next().value;
     this.#figureField = Game.#EMPTY_FIELD;
 
     this.scoresElem.innerText = this.#scores;
